@@ -1,28 +1,23 @@
-const users = [
-	{
-		id: 1,
-		name: 'Renz Carlo Salanga',
-		email: 'thekingrenz23@gmail.com',
-		password: '123123'
-	},
-	{
-		id: 2,
-		name: 'Cesar Salanga',
-		email: 'cesar23@gmail.com',
-		password: '123123'
-	}
-]
+const Template = require('../../templates/response')
 
 module.exports = function(app, db){
 
-	app.get('/getUsers', function(req, res){
-		res.json(users)
-	})
+	app.post('/addUser', async function(req, res){
+		let response
 
-	app.get('/getUser/:id', function(req, res){
-		const id = req.params.id
+		try{
+			const COLLECTION_COMMUTER = db.getDB().collection('user')
+			const result = await COLLECTION_COMMUTER.insertOne(req.body)
 
-		res.json(users[id])
+			response = new Template.Success()
+			response.withData(result.ops)
+			res.status(200).json(response.body())
+		}catch(err){
+			response = new Template.Error()
+			response.withMessage(err.toString())
+			res.status(500).json(response.body())
+		}
+
 	})
 
 }
